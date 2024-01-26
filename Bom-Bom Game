@@ -1,0 +1,91 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
+public class proje {
+    public static void main(String[] args) throws FileNotFoundException {
+		// Bu kısımda masaüstünde bulunan txt dosyasını(oyunun değerlerini) harita adında diziye aktarmış oldum.
+        int[][] harita = new int[10][10];
+        Scanner input = new Scanner(System.in);
+        Scanner sc = new Scanner(new File("harita.txt"));
+
+        int i = 0;
+        while (sc.hasNext() && i < 100) {
+            harita[i / 10][i % 10] = sc.nextInt();
+            i++;
+        }
+
+        // Oyunun devam etmesi için while geğerini true'ya sabitliyorum böylece oyun sürekli devam edecek.
+        while (true) {
+			//for döngüsü sayesinde haritadaki tüm değerleri yazdırmayı sağlıyorum
+			/*27. satırdaki if ile de haritadaki -1 değerleri yerine "X " eklemiş oluyoruz. Bu sayede
+			-1 lerin yerine bir tane yıldız ve sıradaki dizi elemanı ile birleşmemesini sağlamış oluyoruz.
+			Eğer -1 yoksa 30. satırdaki dizinin elemanlarını yazdırma işlemi sonrasındaki boşluk bitişik olmamasını, 
+			33. satırdaki kod ise alt satıra geçmeyi sağlamaktadır.*/
+            for (i = 0; i < 10; i++) {
+                for (int j = 0; j < 10; j++) {
+                    if (harita[i][j] == -1) {
+                        System.out.print("X ");
+                    } else {
+                        System.out.print(harita[i][j] + " ");
+                    }
+                }
+                System.out.println();
+            }
+			/*Kullanıcıdan satır ve sütün sayısının girilmesini istedim ve girilen değerlerden 1 çıkardım
+			Bunun sebebi dizideki elemanların sayımı 0'dan başladığı için kullanıcı 1 girdiği zaman dizideki ilk
+			elemana ulaşmış olacağız*/
+			
+            System.out.println("0 ile 11 arasında satır ve sutun sayısını giriniz(0'a 0 girmek oyunu sonlandıracak) : ");
+            int satir = input.nextInt() - 1;
+            int sutun = input.nextInt() - 1;
+			
+			/* while döngüsü ile girilen değerlerin 0 den küçük 10 dan büyük olma durumlarına bakıyorum
+			Eğer girilen değerler 0'dan küçük ve 10'dan büyükse uyarı verip tekrar değer girilmesini istiyorum
+			(İstenilen değerlerden bir çıkardığımız için sınırlarımız -1 ve 9 oluyor)*/
+			while(satir<-1 || satir>9 || sutun<-1 || sutun>9){
+				System.out.println("İstenilen değerlerin dışında değer girdiniz. Yeni değerler giriniz:");
+				satir = input.nextInt() - 1;
+				sutun = input.nextInt() - 1;
+			}
+				
+            /* Kullanıcıdan aldığımız değerlerden 1 çıkardığımız için 0'a 0 girilince
+			-1 değerine düşecek bu yüzden şartımızı -1 olarak alıyoruz ve oyunun sonlanmasını sağlıyoruz.*/
+            if (satir == -1 || sutun == -1) {
+                System.out.println("Oyunu Bitirdiniz!");
+                break;
+            }
+			
+            kontrolEtme(harita, satir, sutun, harita[satir][sutun]);
+        }
+    }
+
+    public static void kontrolEtme(int[][] harita, int row, int col, int sayi) {
+        /* burada bir hedef tanımlıyoruz bu hedef girilen değere eşit olmama durumunu inceliyoru
+		Bunun sebebi ise eşit olmadığı zaman o diğer konumdaki sayılara bakmayacak ve kontrol etme duracak.
+		Girilen ilk değer otomatik olarak sayi'ya eşit olduğu için girilen ilk değer doğrudan -1 oluyor*/
+		if (harita[row][col] != sayi) {
+            return; 
+        }
+		if (harita[row][col]==-1){
+			return;
+		}
+
+        harita[row][col] = -1; // Oyunda en başta girilen değeri -1'e atıyor
+
+        /* yonBakma metodu ile girilen sayınınn sağını solunu yukarısını ve aşağısını kontrol ediyor.
+		Girilen değerin dizinin içinde kalan kısımları girilen değere tekrardan atanıyor bu sayede girilen 
+		değer ile etrafındaki değerin aynı olup olmadığına bakılıyor*/
+        yonBakma(harita, row, col + 1, sayi);
+        yonBakma(harita, row, col - 1, sayi);
+        yonBakma(harita, row + 1, col, sayi);
+        yonBakma(harita, row - 1, col, sayi);
+    }
+	// yonBakma metodu girilen sınırlandırmalar ile aranan sayının dizinin içinde kalmasını sağlıyor
+    public static void yonBakma(int[][] harita, int row, int col, int sayi) {
+        if (row >= 0 && row < harita.length && col >= 0 && col < harita[0].length) {
+            // kontrolEtme metodunu çalıştırıp metodla bulunan değerlerin harita içinde olup olmamasını kontrol ediyor.
+			kontrolEtme(harita, row, col, sayi);
+        }
+    }
+}
